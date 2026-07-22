@@ -1,4 +1,5 @@
-﻿using Sulthan.Core.Entities;
+﻿using Sulthan.Core.DTOs.Orders;
+using Sulthan.Core.Entities;
 
 namespace Sulthan.Core.Interfaces;
 
@@ -8,9 +9,9 @@ public interface IOrderService
 
     Task<Order?> GetByIdAsync(int id);
 
-    Task<Order> AddAsync(Order order);
+    Task<Order> AddAsync(CreateOrderDto dto);
 
-    Task<Order> UpdateAsync(Order order);
+    Task<Order> UpdateAsync(int id, UpdateOrderDto dto);
 
     Task<bool> DeleteAsync(int id);
 }

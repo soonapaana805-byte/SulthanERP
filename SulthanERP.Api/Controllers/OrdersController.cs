@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sulthan.Core.Entities;
+using Sulthan.Core.DTOs.Orders;
 using Sulthan.Core.Interfaces;
 
 namespace SulthanERP.Api.Controllers
@@ -36,20 +36,17 @@ namespace SulthanERP.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Order order)
+        public async Task<IActionResult> Create(CreateOrderDto dto)
         {
-            var createdOrder = await _orderService.AddAsync(order);
-            return Ok(createdOrder);
+            var order = await _orderService.AddAsync(dto);
+            return Ok(order);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Order order)
+        public async Task<IActionResult> Update(int id, UpdateOrderDto dto)
         {
-            if (id != order.Id)
-                return BadRequest();
-
-            var updatedOrder = await _orderService.UpdateAsync(order);
-            return Ok(updatedOrder);
+            var order = await _orderService.UpdateAsync(id, dto);
+            return Ok(order);
         }
 
         [HttpDelete("{id}")]
