@@ -23,8 +23,18 @@ namespace Sulthan.Infrastructure.Data
                 };
 
                 context.Users.Add(admin);
-                await context.SaveChangesAsync();
             }
+
+            if (!await context.BillCounters.AnyAsync())
+            {
+                context.BillCounters.Add(new BillCounter
+                {
+                    BusinessDate = DateOnly.FromDateTime(DateTime.Today),
+                    LastBillNumber = 0
+                });
+            }
+
+            await context.SaveChangesAsync();
         }
     }
 }
