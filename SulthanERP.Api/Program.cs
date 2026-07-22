@@ -39,6 +39,7 @@ namespace SulthanERP.Api
             builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
             builder.Services.AddScoped<ITableRepository, TableRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IBillCounterRepository, BillCounterRepository>();
 
             // Services
             builder.Services.AddScoped<ITableService, TableService>();

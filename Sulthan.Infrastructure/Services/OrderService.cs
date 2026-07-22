@@ -1,5 +1,6 @@
 ﻿using Sulthan.Core.DTOs.Orders;
 using Sulthan.Core.Entities;
+using Sulthan.Core.Enums;
 using Sulthan.Core.Interfaces;
 
 namespace Sulthan.Infrastructure.Services;
@@ -7,10 +8,20 @@ namespace Sulthan.Infrastructure.Services;
 public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
+    private readonly IBillCounterRepository _billCounterRepository;
+    private readonly IMenuItemRepository _menuItemRepository;
+    private readonly ITableRepository _tableRepository;
 
-    public OrderService(IOrderRepository orderRepository)
+    public OrderService(
+        IOrderRepository orderRepository,
+        IBillCounterRepository billCounterRepository,
+        IMenuItemRepository menuItemRepository,
+        ITableRepository tableRepository)
     {
         _orderRepository = orderRepository;
+        _billCounterRepository = billCounterRepository;
+        _menuItemRepository = menuItemRepository;
+        _tableRepository = tableRepository;
     }
 
     public async Task<IEnumerable<Order>> GetAllAsync()
@@ -25,32 +36,67 @@ public class OrderService : IOrderService
 
     public async Task<Order> AddAsync(CreateOrderDto dto)
     {
+        var billNumber = await _billCounterRepository.GetNextBillNumberAsync();
+
+        DiningTable? table = null;
+
+        if (dto.OrderType != OrderType.Parcel && dto.DiningTableId.HasValue)
+        {
+            table = await _tableRepository.GetByIdAsync(dto.DiningTableId.Value);
+
+            if (table == null)
+                throw new Exception("Dining table not found.");
+        }
+
         var order = new Order
         {
+            BillNumber = billNumber,
             OrderType = dto.OrderType,
+            BillStatus = OrderStatus.Pending,
             DiningTableId = dto.DiningTableId ?? 0,
             CustomerId = dto.CustomerId,
             UserId = dto.UserId,
-
-            // Temporary values
-            BillNumber = string.Empty,
-            BillStatus = Sulthan.Core.Enums.OrderStatus.Pending,
-            SubTotal = 0,
             Discount = 0,
-            Tax = 0,
-            GrandTotal = 0
+            Tax = 0
         };
+
+        decimal subTotal = 0;
 
         foreach (var item in dto.Items)
         {
+            var menuItem = await _menuItemRepository.GetByIdAsync(item.MenuItemId);
+
+            if (menuItem == null)
+                throw new Exception($"Menu item {item.MenuItemId} not found.");
+
+            decimal price;
+
+            if (dto.OrderType == OrderType.Parcel)
+            {
+                price = menuItem.ParcelPrice;
+            }
+            else if (table!.TableType == "AC")
+            {
+                price = menuItem.ACPrice;
+            }
+            else
+            {
+                price = menuItem.NonACPrice;
+            }
+
             order.Items.Add(new OrderItem
             {
                 MenuItemId = item.MenuItemId,
                 Quantity = item.Quantity,
                 Notes = item.Notes,
-                Price = 0 // We'll calculate this in the next step
+                Price = price
             });
+
+            subTotal += price * item.Quantity;
         }
+
+        order.SubTotal = subTotal;
+        order.GrandTotal = subTotal - order.Discount + order.Tax;
 
         return await _orderRepository.AddAsync(order);
     }
