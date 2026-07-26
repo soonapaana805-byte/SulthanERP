@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -6,6 +7,8 @@ using Sulthan.Core.Interfaces;
 using Sulthan.Infrastructure.Data;
 using Sulthan.Infrastructure.Repositories;
 using Sulthan.Infrastructure.Services;
+using SulthanERP.Api.Filters;
+using SulthanERP.Api.Middleware;
 using System.Text;
 
 namespace SulthanERP.Api
@@ -23,7 +26,22 @@ namespace SulthanERP.Api
                     sqlOptions => sqlOptions.MigrationsAssembly("Sulthan.Infrastructure")));
 
             // Controllers
-            builder.Services.AddControllers();
+            builder.Services
+                .AddControllers(options =>
+                {
+                    options.Filters.Add<ValidationFilter>();
+                })
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler =
+                        System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                });
+
+            // Prevent default ASP.NET validation response
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
 
             // ===========================
             // Dependency Injection
@@ -40,10 +58,23 @@ namespace SulthanERP.Api
             builder.Services.AddScoped<ITableRepository, TableRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IBillCounterRepository, BillCounterRepository>();
+            builder.Services.AddScoped<IKitchenOrderTicketRepository, KitchenOrderTicketRepository>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<ISettingsRepository, SettingsRepository>();
 
             // Services
             builder.Services.AddScoped<ITableService, TableService>();
             builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IKitchenOrderTicketService, KitchenOrderTicketService>();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IBillingService, BillingService>();
+            builder.Services.AddScoped<IReceiptFormatter, ReceiptFormatter>();
+            builder.Services.AddScoped<ISettingsService, SettingsService>();
+            builder.Services.AddScoped<IReportService, ReportService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+            // Filters
+            builder.Services.AddScoped<ValidationFilter>();
 
             // JWT Authentication
             var jwtKey = builder.Configuration["Jwt:Key"];
@@ -106,7 +137,6 @@ namespace SulthanERP.Api
 
             var app = builder.Build();
 
-            // Seed Database
             using (var scope = app.Services.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<RestaurantDbContext>();
@@ -121,7 +151,10 @@ namespace SulthanERP.Api
 
             app.UseHttpsRedirection();
 
+            app.UseMiddleware<ExceptionMiddleware>();
+
             app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.MapControllers();

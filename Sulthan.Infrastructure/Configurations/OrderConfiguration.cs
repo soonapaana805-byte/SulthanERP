@@ -13,15 +13,32 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.BillNumber)
-            .IsRequired();
+            .IsRequired()
+            .HasMaxLength(20);
 
-        builder.HasIndex(x => x.BillNumber);
+        builder.HasIndex(x => x.BillNumber)
+            .IsUnique();
 
         builder.Property(x => x.OrderType)
             .IsRequired();
 
         builder.Property(x => x.BillStatus)
             .IsRequired();
+
+        builder.Property(x => x.SubTotal)
+            .HasPrecision(18, 2);
+
+        builder.Property(x => x.Discount)
+            .HasPrecision(18, 2);
+
+        builder.Property(x => x.Tax)
+            .HasPrecision(18, 2);
+
+        builder.Property(x => x.GrandTotal)
+            .HasPrecision(18, 2);
+
+        builder.Property(x => x.Remarks)
+            .HasMaxLength(500);
 
         builder.HasOne(x => x.DiningTable)
             .WithMany()

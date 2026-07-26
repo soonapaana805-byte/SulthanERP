@@ -14,4 +14,6 @@ public interface IOrderService
     Task<Order> UpdateAsync(int id, UpdateOrderDto dto);
 
     Task<bool> DeleteAsync(int id);
+
+    Task<Order> CompleteOrderAsync(int id, CompleteOrderDto dto);
 }

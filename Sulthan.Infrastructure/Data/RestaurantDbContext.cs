@@ -32,6 +32,11 @@ public class RestaurantDbContext : DbContext
 
     public DbSet<BillCounter> BillCounters => Set<BillCounter>();
 
+    // KOT
+    public DbSet<KitchenOrderTicket> KitchenOrderTickets => Set<KitchenOrderTicket>();
+
+    public DbSet<KitchenOrderTicketItem> KitchenOrderTicketItems => Set<KitchenOrderTicketItem>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

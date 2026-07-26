@@ -170,6 +170,86 @@ namespace Sulthan.Infrastructure.Migrations
                     b.ToTable("DiningTables", (string)null);
                 });
 
+            modelBuilder.Entity("Sulthan.Core.Entities.KitchenOrderTicket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReprint")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("KotNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PrintedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KotNumber")
+                        .IsUnique();
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("KitchenOrderTickets");
+                });
+
+            modelBuilder.Entity("Sulthan.Core.Entities.KitchenOrderTicketItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("KitchenOrderTicketId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MenuItemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KitchenOrderTicketId");
+
+                    b.HasIndex("MenuItemId");
+
+                    b.ToTable("KitchenOrderTicketItems", (string)null);
+                });
+
             modelBuilder.Entity("Sulthan.Core.Entities.MenuItem", b =>
                 {
                     b.Property<int>("Id")
@@ -244,8 +324,10 @@ namespace Sulthan.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BillNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("BillNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("BillStatus")
                         .HasColumnType("int");
@@ -256,14 +338,34 @@ namespace Sulthan.Infrastructure.Migrations
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DiningTableId")
+                    b.Property<int>("DiningTableId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("Discount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("GrandTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<int>("OrderType")
                         .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Tax")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
@@ -273,7 +375,8 @@ namespace Sulthan.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BillNumber");
+                    b.HasIndex("BillNumber")
+                        .IsUnique();
 
                     b.HasIndex("CustomerId");
 
@@ -335,12 +438,24 @@ namespace Sulthan.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)");
+                    b.Property<decimal>("BalanceAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("BillAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("GrandTotal")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -348,18 +463,38 @@ namespace Sulthan.Infrastructure.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("PaidOn")
+                    b.Property<decimal>("PaidAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PaymentMode")
+                    b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TransactionNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Payments", (string)null);
                 });
@@ -424,10 +559,37 @@ namespace Sulthan.Infrastructure.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<bool>("AutoPrintAfterPayment")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CurrencySymbol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DecimalPlaces")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FooterMessage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GstNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HeaderMessage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRestaurantOpen")
                         .HasColumnType("bit");
 
                     b.Property<string>("Phone")
@@ -435,13 +597,36 @@ namespace Sulthan.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("PrinterWidth")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ShopName")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<bool>("ShowGstNumberOnBill")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowShopAddressOnBill")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowShopPhoneOnBill")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ShowTaxOnCustomerBill")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("UpdatedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -491,6 +676,36 @@ namespace Sulthan.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("Sulthan.Core.Entities.KitchenOrderTicket", b =>
+                {
+                    b.HasOne("Sulthan.Core.Entities.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("Sulthan.Core.Entities.KitchenOrderTicketItem", b =>
+                {
+                    b.HasOne("Sulthan.Core.Entities.KitchenOrderTicket", "KitchenOrderTicket")
+                        .WithMany("Items")
+                        .HasForeignKey("KitchenOrderTicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sulthan.Core.Entities.MenuItem", "MenuItem")
+                        .WithMany()
+                        .HasForeignKey("MenuItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KitchenOrderTicket");
+
+                    b.Navigation("MenuItem");
+                });
+
             modelBuilder.Entity("Sulthan.Core.Entities.MenuItem", b =>
                 {
                     b.HasOne("Sulthan.Core.Entities.Category", "Category")
@@ -512,7 +727,8 @@ namespace Sulthan.Infrastructure.Migrations
                     b.HasOne("Sulthan.Core.Entities.DiningTable", "DiningTable")
                         .WithMany()
                         .HasForeignKey("DiningTableId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Sulthan.Core.Entities.User", "User")
                         .WithMany()
@@ -554,12 +770,25 @@ namespace Sulthan.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Sulthan.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Order");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Sulthan.Core.Entities.Category", b =>
                 {
                     b.Navigation("MenuItems");
+                });
+
+            modelBuilder.Entity("Sulthan.Core.Entities.KitchenOrderTicket", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Sulthan.Core.Entities.Order", b =>

@@ -40,12 +40,21 @@ public class OrderService : IOrderService
 
         DiningTable? table = null;
 
-        if (dto.OrderType != OrderType.Parcel && dto.DiningTableId.HasValue)
+        if (dto.OrderType != OrderType.Parcel)
         {
+            if (!dto.DiningTableId.HasValue)
+                throw new Exception("Dining table is required.");
+
             table = await _tableRepository.GetByIdAsync(dto.DiningTableId.Value);
 
             if (table == null)
                 throw new Exception("Dining table not found.");
+
+            if (table.Status == "Occupied")
+                throw new Exception($"Table {table.TableNumber} is already occupied.");
+
+            table.Status = "Occupied";
+            await _tableRepository.UpdateAsync(table);
         }
 
         var order = new Order
@@ -67,36 +76,30 @@ public class OrderService : IOrderService
             var menuItem = await _menuItemRepository.GetByIdAsync(item.MenuItemId);
 
             if (menuItem == null)
-                throw new Exception($"Menu item {item.MenuItemId} not found.");
+                throw new Exception($"Menu Item {item.MenuItemId} not found.");
 
             decimal price;
 
             if (dto.OrderType == OrderType.Parcel)
-            {
                 price = menuItem.ParcelPrice;
-            }
             else if (table!.TableType == "AC")
-            {
                 price = menuItem.ACPrice;
-            }
             else
-            {
                 price = menuItem.NonACPrice;
-            }
 
             order.Items.Add(new OrderItem
             {
                 MenuItemId = item.MenuItemId,
                 Quantity = item.Quantity,
-                Notes = item.Notes,
-                Price = price
+                Price = price,
+                Notes = item.Notes
             });
 
             subTotal += price * item.Quantity;
         }
 
         order.SubTotal = subTotal;
-        order.GrandTotal = subTotal - order.Discount + order.Tax;
+        order.GrandTotal = subTotal;
 
         return await _orderRepository.AddAsync(order);
     }
@@ -118,5 +121,33 @@ public class OrderService : IOrderService
     public async Task<bool> DeleteAsync(int id)
     {
         return await _orderRepository.DeleteAsync(id);
+    }
+
+    public async Task<Order> CompleteOrderAsync(int id, CompleteOrderDto dto)
+    {
+        var order = await _orderRepository.GetByIdAsync(id);
+
+        if (order == null)
+            throw new Exception("Order not found.");
+
+        order.Discount = dto.Discount;
+        order.Tax = dto.Tax;
+        order.GrandTotal = order.SubTotal - order.Discount + order.Tax;
+        order.BillStatus = OrderStatus.Paid;
+
+        await _orderRepository.UpdateAsync(order);
+
+        if (order.OrderType == OrderType.DineIn)
+        {
+            var table = await _tableRepository.GetByIdAsync(order.DiningTableId);
+
+            if (table != null)
+            {
+                table.Status = "Available";
+                await _tableRepository.UpdateAsync(table);
+            }
+        }
+
+        return order;
     }
 }

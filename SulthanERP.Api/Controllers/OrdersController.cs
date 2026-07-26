@@ -1,63 +1,149 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sulthan.Core.DTOs.Orders;
+using Sulthan.Core.DTOs.Orders.Response;
 using Sulthan.Core.Interfaces;
 
-namespace SulthanERP.Api.Controllers
+namespace SulthanERP.Api.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class OrdersController : ControllerBase
 {
-    [Authorize]
-    [ApiController]
-    [Route("api/[controller]")]
-    public class OrdersController : ControllerBase
+    private readonly IOrderService _orderService;
+
+    public OrdersController(IOrderService orderService)
     {
-        private readonly IOrderService _orderService;
+        _orderService = orderService;
+    }
 
-        public OrdersController(IOrderService orderService)
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var orders = await _orderService.GetAllAsync();
+
+        var result = orders.Select(order => new OrderDetailsResponseDto
         {
-            _orderService = orderService;
-        }
+            Id = order.Id,
+            BillNumber = order.BillNumber,
+            OrderType = order.OrderType.ToString(),
+            BillStatus = order.BillStatus.ToString(),
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+            Table = order.DiningTable == null
+                ? null
+                : new TableSummaryDto
+                {
+                    Id = order.DiningTable.Id,
+                    TableNumber = order.DiningTable.TableNumber
+                },
+
+            Captain = order.User == null
+                ? null
+                : new UserSummaryDto
+                {
+                    Id = order.User.Id,
+                    FullName = order.User.FullName
+                },
+
+            SubTotal = order.SubTotal,
+            Discount = order.Discount,
+            Tax = order.Tax,
+            GrandTotal = order.GrandTotal,
+            Remarks = order.Remarks,
+
+            Items = order.Items.Select(i => new OrderItemResponseDto
+            {
+                MenuItemId = i.MenuItemId,
+                ItemName = i.MenuItem?.Name ?? "",
+                Price = i.Price,
+                Quantity = i.Quantity,
+                Notes = i.Notes
+            }).ToList()
+        });
+
+        return Ok(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var order = await _orderService.GetByIdAsync(id);
+
+        if (order == null)
+            return NotFound();
+
+        var result = new OrderDetailsResponseDto
         {
-            var orders = await _orderService.GetAllAsync();
-            return Ok(orders);
-        }
+            Id = order.Id,
+            BillNumber = order.BillNumber,
+            OrderType = order.OrderType.ToString(),
+            BillStatus = order.BillStatus.ToString(),
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var order = await _orderService.GetByIdAsync(id);
+            Table = order.DiningTable == null
+                ? null
+                : new TableSummaryDto
+                {
+                    Id = order.DiningTable.Id,
+                    TableNumber = order.DiningTable.TableNumber
+                },
 
-            if (order == null)
-                return NotFound();
+            Captain = order.User == null
+                ? null
+                : new UserSummaryDto
+                {
+                    Id = order.User.Id,
+                    FullName = order.User.FullName
+                },
 
-            return Ok(order);
-        }
+            SubTotal = order.SubTotal,
+            Discount = order.Discount,
+            Tax = order.Tax,
+            GrandTotal = order.GrandTotal,
+            Remarks = order.Remarks,
 
-        [HttpPost]
-        public async Task<IActionResult> Create(CreateOrderDto dto)
-        {
-            var order = await _orderService.AddAsync(dto);
-            return Ok(order);
-        }
+            Items = order.Items.Select(i => new OrderItemResponseDto
+            {
+                MenuItemId = i.MenuItemId,
+                ItemName = i.MenuItem?.Name ?? "",
+                Price = i.Price,
+                Quantity = i.Quantity,
+                Notes = i.Notes
+            }).ToList()
+        };
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, UpdateOrderDto dto)
-        {
-            var order = await _orderService.UpdateAsync(id, dto);
-            return Ok(order);
-        }
+        return Ok(result);
+    }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var deleted = await _orderService.DeleteAsync(id);
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateOrderDto dto)
+    {
+        var order = await _orderService.AddAsync(dto);
+        return Ok(order);
+    }
 
-            if (!deleted)
-                return NotFound();
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, UpdateOrderDto dto)
+    {
+        var order = await _orderService.UpdateAsync(id, dto);
+        return Ok(order);
+    }
 
-            return NoContent();
-        }
+    [HttpPut("{id}/complete")]
+    public async Task<IActionResult> Complete(int id, CompleteOrderDto dto)
+    {
+        var order = await _orderService.CompleteOrderAsync(id, dto);
+        return Ok(order);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _orderService.DeleteAsync(id);
+
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
     }
 }

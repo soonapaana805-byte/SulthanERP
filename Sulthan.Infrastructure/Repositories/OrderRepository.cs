@@ -21,6 +21,8 @@ public class OrderRepository : IOrderRepository
             .Include(x => x.User)
             .Include(x => x.Customer)
             .Include(x => x.Items)
+                .ThenInclude(i => i.MenuItem)
+                    .ThenInclude(m => m.Category)
             .ToListAsync();
     }
 
@@ -31,6 +33,7 @@ public class OrderRepository : IOrderRepository
             .Include(x => x.User)
             .Include(x => x.Customer)
             .Include(x => x.Items)
+                .ThenInclude(x => x.MenuItem)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
