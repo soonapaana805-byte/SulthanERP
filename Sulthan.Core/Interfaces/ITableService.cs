@@ -13,5 +13,8 @@ public interface ITableService
 
     Task<DiningTable> UpdateAsync(int id, UpdateDiningTableDto dto);
 
+    /// <summary>Returns a paid table to service only after its physical cleaning is confirmed.</summary>
+    Task<DiningTable> MarkCleanAsync(int id, CancellationToken cancellationToken = default);
+
     Task DeleteAsync(int id);
 }

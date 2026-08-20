@@ -15,6 +15,10 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder.Property(x => x.Quantity)
             .IsRequired();
 
+        builder.Property(x => x.CancelledQuantity)
+            .IsRequired()
+            .HasDefaultValue(0);
+
         builder.Property(x => x.Price)
             .HasPrecision(10, 2);
 

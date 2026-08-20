@@ -4,4 +4,5 @@
   <Project Path="Sulthan.Shared/Sulthan.Shared.csproj" Id="0e2f2da5-fa50-4c96-b3e0-9ea78d227ced" />
   <Project Path="Sulthan.Tools/Sulthan.Tools.csproj" Id="a888a5ab-cee1-4b29-814d-00d59b3bb4d4" />
   <Project Path="SulthanERP.Api/SulthanERP.Api.csproj" Id="c6ad09cf-8c06-4632-baff-3c2493f1726e" />
+  <Project Path="SulthanERP.Cashier/SulthanERP.Cashier.csproj" Id="1280fa18-e85f-4832-b233-fbd3b1ecf55e" />
 </Solution>

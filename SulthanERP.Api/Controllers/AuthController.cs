@@ -31,4 +31,27 @@ public class AuthController : ControllerBase
             });
         }
     }
+
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Cashier")]
+    [HttpPost("validate-discount-approval")]
+    public async Task<IActionResult> ValidateDiscountApproval(
+        ManagerApprovalDto approval,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _authService.ValidateActiveAdminAsync(
+                approval,
+                cancellationToken);
+
+            return Ok(new { approved = true });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid Admin credentials."
+            });
+        }
+    }
 }

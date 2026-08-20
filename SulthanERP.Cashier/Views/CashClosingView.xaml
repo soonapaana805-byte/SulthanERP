@@ -1,0 +1,160 @@
+<UserControl x:Class="SulthanERP.Cashier.Views.CashClosingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Background="#F1F5F9">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Background="#0F172A">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Margin="24,0" VerticalAlignment="Center">
+                <TextBlock Text="CASH CLOSING" Foreground="White" FontSize="20" FontWeight="Bold" />
+                <TextBlock Text="Today’s cashier cash count" Foreground="#BFDBFE" FontSize="11" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="Back to summary" Command="{Binding BackToSummaryCommand}" Height="34" Margin="0,0,10,0" VerticalAlignment="Center" />
+            <Button Grid.Column="2" Content="Refresh" Command="{Binding LoadCommand}" Width="88" Height="34" Margin="0,0,20,0" VerticalAlignment="Center" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="24" MaxWidth="960" HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Border Background="White" CornerRadius="10" Padding="18" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="TODAY'S COLLECTION" FontSize="17" FontWeight="Bold" />
+                            <TextBlock Text="{Binding BusinessDateText}" Foreground="#64748B" Margin="0,3,0,0" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                            <TextBlock Text="{Binding ClosingStatusText}" Foreground="{Binding ClosingStatusBrush}" FontWeight="SemiBold" HorizontalAlignment="Right" />
+                            <TextBlock Text="One closing record per cashier per day" Foreground="#64748B" FontSize="11" HorizontalAlignment="Right" Margin="0,3,0,0" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,14">
+                    <Border Background="#ECFDF5" CornerRadius="10" Padding="16" Margin="0,0,12,0">
+                        <StackPanel><TextBlock Text="EXPECTED CASH" Foreground="#166534" FontSize="11" /><TextBlock FontSize="23" FontWeight="Bold"><Run Text="&#x20B9; " /><Run Text="{Binding Summary.ExpectedCash, Mode=OneWay, StringFormat={}{0:N2}}" /></TextBlock></StackPanel>
+                    </Border>
+                    <Border Background="#EFF6FF" CornerRadius="10" Padding="16" Margin="0,0,12,0">
+                        <StackPanel><TextBlock Text="CARD" Foreground="#1D4ED8" FontSize="11" /><TextBlock FontSize="23" FontWeight="Bold"><Run Text="&#x20B9; " /><Run Text="{Binding Summary.CardCollection, Mode=OneWay, StringFormat={}{0:N2}}" /></TextBlock></StackPanel>
+                    </Border>
+                    <Border Background="#F5F3FF" CornerRadius="10" Padding="16" Margin="0,0,12,0">
+                        <StackPanel><TextBlock Text="UPI" Foreground="#6D28D9" FontSize="11" /><TextBlock FontSize="23" FontWeight="Bold"><Run Text="&#x20B9; " /><Run Text="{Binding Summary.UpiCollection, Mode=OneWay, StringFormat={}{0:N2}}" /></TextBlock></StackPanel>
+                    </Border>
+                    <Border Background="#FFF7ED" CornerRadius="10" Padding="16">
+                        <StackPanel><TextBlock Text="TOTAL COLLECTION" Foreground="#C2410C" FontSize="11" /><TextBlock FontSize="23" FontWeight="Bold"><Run Text="&#x20B9; " /><Run Text="{Binding Summary.TotalCollection, Mode=OneWay, StringFormat={}{0:N2}}" /></TextBlock></StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <Border Grid.Row="2" Background="White" CornerRadius="10" Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="PHYSICAL CASH COUNT" FontSize="17" FontWeight="Bold" />
+                        <TextBlock Text="Enter the quantity for each denomination. The calculated total fills Actual cash automatically." Foreground="#64748B" TextWrapping="Wrap" Margin="0,4,0,14" />
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="DENOMINATION COUNT" FontWeight="SemiBold" />
+                            <Button Grid.Column="1"
+                                    Content="Clear counts"
+                                    Command="{Binding ClearDenominationsCommand}"
+                                    IsEnabled="{Binding CanEditClosing}"
+                                    Padding="8,3" />
+                            <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
+                                       Text="Enter note/coin quantity only. Total is calculated automatically."
+                                       Foreground="#64748B"
+                                       FontSize="11"
+                                       Margin="0,3,0,8" />
+                            <ItemsControl Grid.Row="2" Grid.ColumnSpan="2" ItemsSource="{Binding Denominations}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="3" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="5" Padding="8" Margin="0,0,8,8">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Foreground="#475569" FontSize="10" Text="DENOM." />
+                                                    <TextBlock FontWeight="Bold" FontSize="16">
+                                                        <Run Text="&#x20B9; " />
+                                                        <Run Text="{Binding Value, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                                    <TextBlock Text="Qty" Foreground="#64748B" FontSize="10" />
+                                                    <TextBox Text="{Binding CountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                             IsEnabled="{Binding DataContext.CanEditClosing, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                             Height="27"
+                                                             VerticalContentAlignment="Center" />
+                                                    <TextBlock Foreground="#166534" FontWeight="SemiBold" FontSize="11" Margin="0,4,0,0">
+                                                        <Run Text="= &#x20B9; " />
+                                                        <Run Text="{Binding Total, Mode=OneWay, StringFormat={}{0:N2}}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="220" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Actual cash counted" FontWeight="SemiBold" />
+                                <TextBox Text="{Binding ActualCashText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditClosing, Mode=OneWay}" Height="34" Margin="0,6,0,0" VerticalContentAlignment="Center" />
+                                <TextBlock Foreground="#64748B" FontSize="10" Margin="0,3,0,0">
+                                    <Run Text="Denomination total: &#x20B9; " />
+                                    <Run Text="{Binding DenominationTotal, Mode=OneWay, StringFormat={}{0:N2}}" />
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="24,0,0,0">
+                                <TextBlock Text="VARIANCE" Foreground="#64748B" FontSize="11" />
+                                <TextBlock Text="{Binding VarianceText}" Foreground="{Binding VarianceBrush}" FontSize="16" FontWeight="SemiBold" Margin="0,7,0,0" />
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Closing notes (optional)" FontWeight="SemiBold" />
+                        <TextBox Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding CanEditClosing, Mode=OneWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="72" Margin="0,6,0,0" VerticalScrollBarVisibility="Auto" />
+
+                        <TextBlock Text="{Binding StatusMessage}" Foreground="{Binding StatusBrush}" TextWrapping="Wrap" Margin="0,14,0,0" />
+                        <TextBlock Text="Recording a close does not lock POS sales. Any later sale is outside this saved closing snapshot." Foreground="#64748B" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,16" />
+
+                        <Button Content="Record cash closing" Command="{Binding RecordClosingCommand}" IsEnabled="{Binding CanRecordClosing}" Height="38" Width="190" HorizontalAlignment="Left" Background="#16A34A" Foreground="White" FontWeight="SemiBold" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

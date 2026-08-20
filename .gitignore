@@ -9,6 +9,7 @@ obj/
 
 TestResults/
 publish/
+PrintSpool/
 
 *.dbmdl
 *.cache

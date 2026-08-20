@@ -54,6 +54,14 @@ public class DiningTablesController : ControllerBase
 		return Ok(result);
 	}
 
+	[HttpPost("{id:int}/mark-clean")]
+	[Authorize(Roles = "Admin,Captain")]
+	public async Task<IActionResult> MarkClean(int id, CancellationToken cancellationToken)
+	{
+		var result = await _tableService.MarkCleanAsync(id, cancellationToken);
+		return Ok(result);
+	}
+
 	[HttpDelete("{id:int}")]
 	public async Task<IActionResult> Delete(int id)
 	{

@@ -10,7 +10,7 @@ public class DiningTable : BaseEntity
 
     public int Capacity { get; set; }
 
-    public string Status { get; set; } = "Available";
+    public string Status { get; set; } = DiningTableStatus.Available;
 
     public int DisplayOrder { get; set; }
 }

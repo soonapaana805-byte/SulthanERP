@@ -7,6 +7,7 @@
         Ready = 3,
         Served = 4,
         Paid = 5,
-        Cancelled = 6
+        Cancelled = 6,
+        Voided = 7
     }
 }
